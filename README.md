@@ -9,9 +9,12 @@ _The above image and the name came from the popular [Tape javascript library](ht
 Disclaimer:
 
 This was written as a practice of learning Guile.
+
 The code is messy and there are bugs.
+
 Also, the module's name is **Tape** it is not following the [TAP](https://testanything.org/) spec.
-In the future I might evolve further, to serve my TDD testing needs.
+
+In the future it might evolve further, to better serve my TDD needs.
 
 ## Example
 
@@ -26,6 +29,8 @@ In the future I might evolve further, to serve my TDD testing needs.
   (it "tests that a string is equal to 'world'"
       (expect "hello" (toBe "world"))))
 ```
+
+_the following output is actually coloured_
 
 ```bash
 %%%% Starting test toBe
