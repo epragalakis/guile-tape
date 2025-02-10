@@ -101,8 +101,7 @@
          (pass? (eq? result-kind 'pass))
          (color (if pass? green red))
          (status (if pass? "PASS" "FAIL")))
-    ;(format #t "~a~a: ~a~a\n" color status test-name reset) (ideally this would work, but the test-name for (test-error) its not present thus the following line:
-    (format #t "~a~a: ~a~a\n" color status (if (and expected-error (string? expected-error)) expected-error test-name) reset)
+    (format #t "~a~a: ~a~a\n" color status test-name reset)
     (unless pass?
         (let ((expected (or (assq-ref (test-result-alist runner) 'expected-value) #t))
             (actual (or (assq-ref (test-result-alist runner) 'actual-value) #f)))
