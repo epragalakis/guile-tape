@@ -112,11 +112,78 @@
   (it "should fail when the string length doesn't match the expected (fail)" 
       (expect "hello" (toHaveLength 1))))
 
-  ;(describe "toThrow (currently buggy)"
-  ;(it "should test a throwing error (pass)" 
+(describe "toThrow (currently buggy)"
+  (it "should test a throwing error (pass)"
       ;(expect (lambda () (car '())))
-        ;(toThrow))
+      (expect #f
+        (toThrow))))
 
   ;(it "should fail when there isnt a throwing error (fail)" 
       ;(expect (lambda () (+ 1 2)))
         ;(toThrow)))
+
+(define expectedValue 0)
+(describe "only beforeAll"
+          (beforeAll (lambda ()
+                       (display "--Before all tests\n")
+                       (set! expectedValue "only beforeAll")))
+
+          (it "should match expected value (pass)" (expect expectedValue (toBe "only beforeAll")))
+          (it "should match boolean values (pass)" (expect #t (toBe #t))))
+
+(describe "beforeAll and afterAll"
+  (beforeAll (lambda ()
+              (display "--Before all tests\n")
+              (set! expectedValue "beforeAll and afterAll")))
+
+  (afterAll (lambda ()
+              (display "--After all tests\n")
+              (set! expectedValue 0)))
+
+  (it "should match expected value (pass)" (expect expectedValue (toBe "beforeAll and afterAll")))
+  (it "should match boolean values (pass)" (expect #t (toBe #t))))
+
+(set! expectedValue "only afterAll")
+(describe "only afterAll"
+  (afterAll (lambda () (display "--After all tests\n")))
+
+  (it "should match expected value (pass)" (expect expectedValue (toBe "only afterAll")))
+  (it "should match boolean values (pass)" (expect #t (toBe #t))))
+
+(describe "beforeEach and afterEach hooks"
+  (beforeEach (lambda ()
+    (display "--Before each test\n")
+    (set! expectedValue "beforeEach and afterEach hooks")))
+  (afterEach (lambda ()
+    (display "--After each test\n")
+    (set! expectedValue 0)))
+
+  (it "should match expected value (1) (pass)"
+    (expect expectedValue (toBe "beforeEach and afterEach hooks")))
+  (it "should match expected value (2) (pass)"
+    (expect expectedValue (toBe "beforeEach and afterEach hooks"))))
+
+(describe "only beforeEach"
+  (beforeEach (lambda ()
+    (display "--Before each test\n")
+    (set! expectedValue "only beforeEach")))
+
+  (it "should match expected value (1) (pass)"
+    (expect expectedValue (toBe "only beforeEach")))
+  (it "should match expected value (2) (pass)"
+    (expect expectedValue (toBe "only beforeEach"))))
+
+(describe "only afterEach"
+  (beforeEach (lambda ()
+    (display "--After each test\n")
+    (set! expectedValue "only afterEach")))
+
+  (it "should match expected value (1) (pass)"
+    (expect expectedValue (toBe "only afterEach")))
+  (it "should match expected value (2) (pass)"
+    (expect expectedValue (toBe "only afterEach"))))
+
+(describe "no hooks"
+  ;; This test is needed to ensure that the state from the previous hooks is not persisted
+  (it "should match expected value (1) (pass)"
+    (expect expectedValue (toBe "only afterEach"))))

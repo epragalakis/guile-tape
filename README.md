@@ -54,8 +54,32 @@ TODO as its not yet published anywhere
 - Import tape in your test file: `use-modules ('tape')`
 - Run the test: `$ guile tests/my-test.scm`
 
-- For all supported matchers check: `./tape.scm`
-- For more use cases check: `./test.scm`
+- For all supported matchers check: `./tape.scm` TODO have a section for that
+- For more use cases check: `./test.scm` TODO have a section for that
+
+### Hooks
+
+The following combinations of hooks can be used in the given order, after the `describe` block:
+
+- beforeAll, afterAll, beforeEach, afterEach
+- beforeAll, afterAll
+- beforeAll
+- afterAll
+- beforeEach afterEach
+- beforeEach
+- afterEach
+- no hooks
+
+Example:
+
+```
+(describe "A describe block"
+  (beforeEach (lambda () (display "This will run before each test.\n")))
+   ...
+)
+```
+
+_due to pattern matching I decided not to implement all the 64 possible combinations (64 because all the possible combinations + the differences in the call order) with the hope that there is an easier solution to be found_
 
 ## License
 
