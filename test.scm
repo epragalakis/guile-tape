@@ -122,6 +122,16 @@
       ;(expect (lambda () (+ 1 2)))
         ;(toThrow)))
 
+(describe "skips tests that are marked as 'skip'"
+  (it-skip "should skip this test" (expect #f (toBeTruthy)))
+  (it "should not skip this test" (expect #t (toBeTruthy))))
+
+(describe "skips tests that are marked as 'todo'"
+  (it-todo "should skip this test")
+  (it "should not skip this test" (expect #t (toBeTruthy)))
+  (it-todo "should skip this test")
+  (it-todo "should skip this test"))
+
 (define expectedValue 0)
 (describe "only beforeAll"
           (beforeAll (lambda ()

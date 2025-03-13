@@ -4,6 +4,8 @@
   #:use-module (ice-9 format)
   #:export (describe
             it
+            it-skip
+            it-todo
             expect
             beforeAll
             beforeEach
@@ -44,7 +46,7 @@
 (define-syntax-rule (afterEach body ...)
   (set! after-each-hook (lambda () body ...)))
 
-;; TODO any alternative from having global vars?
+;; TODO any alternative from having global vars? (alists?)
 (define current-test-name #f)
 (define current-before-each (make-parameter (lambda () #f)))
 (define current-after-each (make-parameter (lambda () #f)))
@@ -59,6 +61,24 @@
          body ...
          (set! current-test-name old-test-name))
        ((current-after-each))))))
+
+;;TODO skip tests are still evaluated? check the actual and expected value
+(define-syntax it-skip
+  (syntax-rules ()
+    ((_ description body ...)
+     (begin
+      (let ((old-test-name current-test-name))
+        (set! current-test-name description)
+        (test-skip 1) ;; skips the next test
+        body ... ;; runs the next test
+        (set! current-test-name old-test-name))
+       ))))
+
+(define-syntax it-todo
+  (syntax-rules ()
+    ((_ description )
+     (begin
+        (test-eqv description "&&TODO&&" "&&TODO&&"))))) ;; I know..
 
 (define-syntax describe
   (syntax-rules (beforeAll afterAll beforeEach afterEach)
@@ -188,28 +208,45 @@
   (lambda (expression test-name)
     (test-error test-name #t expression)))
 
+(define todo-count 0)
 (define (test-result runner)
   (let* ((test-name (test-runner-test-name runner))
          (expected-error (test-result-ref runner 'expected-error))
          (result-kind (test-result-kind runner))
          (pass? (eq? result-kind 'pass))
-         (color (if pass? green red))
-         (status (if pass? "PASS" "FAIL")))
-    (format #t "~a~a: ~a~a\n" color status test-name reset)
-    (unless pass?
-        (let ((expected (or (assq-ref (test-result-alist runner) 'expected-value) #t))
-            (actual (or (assq-ref (test-result-alist runner) 'actual-value) #f)))
-        (format #t "  ~aExpected: ~s~a\n" green expected reset)
-        (format #t "  ~aReceived: ~s~a\n" red actual reset)))))
+         (skip? (eq? result-kind 'skip))
+         (expected (or (assq-ref (test-result-alist runner) 'expected-value) #t))
+         (actual (or (assq-ref (test-result-alist runner) 'actual-value) #f))
+         (todo? (and (string? actual) (string=? actual "&&TODO&&"))) ;; I know..
+         (color (cond
+          (todo? yellow)
+          (skip? yellow)
+          (pass? green)
+          (else red)))
+         (status (cond
+          (todo? "TODO")
+          (skip? "SKIP")
+          (pass? "PASS")
+          (else "FAIL"))))
 
+    (when todo? (set! todo-count (+ todo-count 1))) ;; TODO there should be a better way to do that in the tests-summary
+    (format #t "~a~a: ~a~a\n" color status test-name reset)
+    (when (equal? status "FAIL")
+      (format #t "  ~aExpected: ~s~a\n" green expected reset)
+      (format #t "  ~aReceived: ~s~a\n" red actual reset))))
 
 (define (tests-summary runner)
   (let* ((passes (test-runner-pass-count runner))
          (failures (test-runner-fail-count runner))
-         (total (+ passes failures)))
-    (format #t "\n~a# of expected passes      ~a~a\n" green passes reset)
+         (skips (test-runner-skip-count runner))
+         (total (+ passes failures todo-count skips)))
+    (format #t "\n~a# of TODO tests           ~a~a\n" yellow todo-count reset)
+    (format #t "~a# of skipped tests        ~a~a\n" yellow skips reset)
+    (format #t "~a# of expected passes      ~a~a\n" green (- passes todo-count) reset) ;; currently "TODO" tests count as "PASS"
     (format #t "~a# of unexpected failures  ~a~a\n" red failures reset)
-    (format #t "~a# of total tests          ~a~a\n" yellow total reset)))
+    (format #t "~a# of total tests          ~a~a\n" yellow (- total todo-count) reset)) ;; remove "TODO" tests them from the count as they are part of the "passes" count
+    (set! todo-count 0)
+  )
 
 ;; disable log files generation
 ;; I dont see a point of having log files as in all the cases I've seen the same information is already in the terminal.
@@ -234,4 +271,3 @@
             (tests-summary runner)
             (format #t "Total time: ~,6f seconds\n~%" seconds))))
       runner)))
-
