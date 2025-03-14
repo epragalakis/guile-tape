@@ -8,6 +8,9 @@
   (test "should call a test in an 'test' block"
       (expect #t (toBeTruthy))))
 
+(tests "'tests' as an alternative syntax to 'describe'"
+  (test "should pass" (expect #t (toBeTruthy))))
+
 (describe "toBe matcher"
   (it "should compare equal numbers (pass)"
       (let ((number4 4))

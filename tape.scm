@@ -6,6 +6,7 @@
   #:use-module (srfi srfi-19)
   #:use-module (ice-9 format)
   #:export (describe
+            tests
             test
             test-todo
             test-skip
@@ -167,6 +168,9 @@
        (test-begin name)
        body ...
        (test-end name)))))
+
+(define-syntax tests
+  (identifier-syntax describe))
 
 (define-syntax-rule (expect actual matcher) 
   ;; TODO account also for 'test' instead of 'it'
