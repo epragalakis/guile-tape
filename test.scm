@@ -1,6 +1,13 @@
 (add-to-load-path (getcwd))
 (use-modules (tape))
 
+(describe "calls a test in an 'it' or a 'test' block"
+  (it "should call a test in an 'it' block"
+      (expect #t (toBeTruthy)))
+
+  (test "should call a test in an 'test' block"
+      (expect #t (toBeTruthy))))
+
 (describe "toBe matcher"
   (it "should compare equal numbers (pass)"
       (let ((number4 4))
@@ -123,14 +130,16 @@
         ;(toThrow)))
 
 (describe "skips tests that are marked as 'skip'"
-  (it-skip "should skip this test" (expect #f (toBeTruthy)))
+  (it-skip "should skip this test (it-skip syntax)" (expect #f (toBeTruthy)))
+  (test-skip "should skip this test (test-skip syntax)" (expect #t (toBeTruthy)))
   (it "should not skip this test" (expect #t (toBeTruthy))))
 
 (describe "skips tests that are marked as 'todo'"
-  (it-todo "should skip this test")
+  (it-todo "should skip this test (it-todo syntax)")
   (it "should not skip this test" (expect #t (toBeTruthy)))
+  (test-todo "should skip this test (test-todo syntax)")
   (it-todo "should skip this test")
-  (it-todo "should skip this test"))
+  (it "should not skip this test" (expect #t (toBeTruthy))))
 
 (define expectedValue 0)
 (describe "only beforeAll"

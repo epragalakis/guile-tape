@@ -1,8 +1,14 @@
 (define-module (tape)
   #:use-module (srfi srfi-64)
+  #:use-module ((srfi srfi-64)
+    #:select (test-skip)
+    #:renamer (symbol-prefix-proc 'srfi:))
   #:use-module (srfi srfi-19)
   #:use-module (ice-9 format)
   #:export (describe
+            test
+            test-todo
+            test-skip
             it
             it-skip
             it-todo
@@ -62,6 +68,10 @@
          (set! current-test-name old-test-name))
        ((current-after-each))))))
 
+;; alternative syntax
+(define-syntax test
+  (identifier-syntax it))
+
 ;;TODO skip tests are still evaluated? check the actual and expected value
 (define-syntax it-skip
   (syntax-rules ()
@@ -69,16 +79,22 @@
      (begin
       (let ((old-test-name current-test-name))
         (set! current-test-name description)
-        (test-skip 1) ;; skips the next test
+        (srfi:test-skip 1) ;; skips the next test
         body ... ;; runs the next test
         (set! current-test-name old-test-name))
        ))))
+
+(define-syntax test-skip
+  (identifier-syntax it-skip))
 
 (define-syntax it-todo
   (syntax-rules ()
     ((_ description )
      (begin
         (test-eqv description "&&TODO&&" "&&TODO&&"))))) ;; I know..
+
+(define-syntax test-todo
+  (identifier-syntax it-todo))
 
 (define-syntax describe
   (syntax-rules (beforeAll afterAll beforeEach afterEach)
@@ -153,6 +169,7 @@
        (test-end name)))))
 
 (define-syntax-rule (expect actual matcher) 
+  ;; TODO account also for 'test' instead of 'it'
   (matcher actual (string-append "it" " " current-test-name)))
 
 ;; matchers
