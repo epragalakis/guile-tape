@@ -63,6 +63,7 @@
 (define current-before-each (make-parameter (lambda () #f)))
 (define current-after-each (make-parameter (lambda () #f)))
 
+;;; Define an individual test case
 (define-syntax it
   (syntax-rules ()
     ((_ description body ...)
@@ -74,10 +75,11 @@
          (set! current-test-name old-test-name))
        ((current-after-each))))))
 
-;; alternative syntax
+;;; Alias of "it"
 (define-syntax test
   (identifier-syntax it))
 
+;;; Define an individual test case that is expected to fail
 (define-syntax it-fail
   (syntax-rules ()
     ((_ description body ...)
@@ -89,10 +91,12 @@
         (set! current-test-name old-test-name))
        ))))
 
+;;; Alias of "it-fail"
 (define-syntax test-fail
   (identifier-syntax it-fail))
 
-;;TODO skip tests are still evaluated? check the actual and expected value
+;;; Define an individual test case that is going to be skipped
+;;; TODO skip tests are still evaluated? check the actual and expected value
 (define-syntax it-skip
   (syntax-rules ()
     ((_ description body ...)
@@ -104,18 +108,22 @@
         (set! current-test-name old-test-name))
        ))))
 
+;;; Alias of "it-skip"
 (define-syntax test-skip
   (identifier-syntax it-skip))
 
+;;; Define an individual test case that is in a "TODO" state and it is going to be skipped
 (define-syntax it-todo
   (syntax-rules ()
     ((_ description )
      (begin
         (test-eqv description "&&TODO&&" "&&TODO&&"))))) ;; I know..
 
+;;; Alias of "it-todo"
 (define-syntax test-todo
   (identifier-syntax it-todo))
 
+;;; Group a set of tests
 (define-syntax describe
   (syntax-rules (beforeAll afterAll beforeEach afterEach)
     ((_ name (beforeAll before-all) (afterAll after-all) (beforeEach before-each) (afterEach after-each) body ...)
@@ -188,53 +196,66 @@
        body ...
        (test-end name)))))
 
+;;; Alias of "describe"
 (define-syntax tests
   (identifier-syntax describe))
 
+;;; Assert that ACTUAL satisfies a given MATCHER
 (define-syntax-rule (expect actual matcher) 
   ;; TODO account also for 'test' instead of 'it'
   (matcher actual (string-append "it" " " current-test-name)))
 
-;; matchers
+;;; Matchers
+
+;;; Check if ACTUAL is equivalent to an expected value using "test-eqv"
 (define-syntax-rule (toBe actual)
   (lambda (expected test-name)
     (test-eqv test-name expected actual)))
 
+;;; Check if ACTUAL is equal to an expected  value using "test-equal"
 (define-syntax-rule (toEqual actual)
   (lambda (expected test-name)
     (test-equal test-name expected actual)))
 
+;;; Check if a value is truthy using "test-assert"
 (define-syntax-rule (toBeTruthy)
   (lambda (value test-name)
     (test-assert test-name value)))
 
+;;; Check if a value is falsy using "test-assert"
 (define-syntax-rule (toBeFalsy)
   (lambda (value test-name)
     (test-assert test-name (not value))))
 
+;;; Check if ACTUAL is greater than expected value, using "test-assert"
 (define-syntax-rule (toBeGreaterThan actual)
   (lambda (expected test-name)
     (test-assert test-name (> expected actual))))
 
+;;; Check if ACTUAL is less than an expected value, using "test-assert"
 (define-syntax-rule (toBeLessThan actual)
   (lambda (expected test-name)
     (test-assert test-name (< expected actual))))
 
+;;; Check if ACTUAL is approximately equal to an expected value within DELTA, using "test-approximate"
 (define-syntax-rule (toBeCloseTo actual delta)
   (lambda (expected test-name)
     (test-approximate test-name expected actual delta)))
 
+;;; Check if ACTUAL string contains an expected substring, using "test-assert"
+;;; TODO: regex support
 (define-syntax-rule (stringToMatch actual)
-  ;;TODO: regex support
   (lambda (expected test-name)
     (test-assert test-name (string-contains actual expected))))
 
+;;; Check if Actual list contains an expected element, using "test-assert"
 (define-syntax-rule (listToContain actual)
   ;;TODO: find a better name
   (lambda (expected test-name)
     (test-assert test-name
       (member expected actual))))
 
+;;; Check if the length of ACTUAL (string or list) equals to expected length, using "test-eqv"
 (define-syntax-rule (toHaveLength actual)
   (lambda (item test-name)
     (let ((actual-length 
@@ -243,12 +264,13 @@
         (length item))))
       (test-eqv test-name actual actual-length))))
 
+;;; Check if EXPRESSION throws an error during evaluation, using "test-error"
+;;; TODO completely broken
 (define-syntax-rule (toThrow)
-  ;;TODO completely broken
   (lambda (expression test-name)
     (test-error test-name #t expression)))
 
-
+;;; Test result
 (define todo-count 0)
 (define (test-result runner)
   (let* ((test-name (test-runner-test-name runner))
@@ -290,6 +312,7 @@
       (format #t "  ~aExpected: ~s~a\n" green expected reset)
       (format #t "  ~aReceived: ~s~a\n" red actual reset))))
 
+;;; Test summary
 (define (tests-summary runner)
   (let* ((passes (test-runner-pass-count runner))
          (failures (test-runner-fail-count runner))
