@@ -307,7 +307,7 @@
 
     (when todo? (set! todo-count (+ todo-count 1))) ;; TODO there should be a better way to do that in the tests-summary
 
-    (format #t "  ~a ~a ~a~a\n" color-bg status reset (string-append " " test-name) reset)
+    (format #t "  ~a ~a ~a~a~a\n" color-bg status reset (string-append " " test-name) reset)
     (when (equal? status "FAIL")
       (format #t "    ~aExpected: ~s~a\n" green expected reset)
       (format #t "    ~aReceived: ~s~a\n" red actual reset))))
@@ -320,12 +320,14 @@
          (expected-failures (test-runner-xfail-count runner))
          (unexpected-failures (test-runner-xpass-count runner))
          (total (+ passes failures todo-count skips expected-failures unexpected-failures)))
-    (format #t "\n~a# of TODO tests           ~a~a\n" yellow todo-count reset)
-    (format #t "~a# of skipped tests        ~a~a\n" yellow skips reset)
-    (format #t "~a# of expected passes      ~a~a\n" green (+ (- passes todo-count)) reset) ;; currently "TODO" tests count as "PASS"
-    (format #t "~a# of expected failures    ~a~a\n" green expected-failures reset)
-    (format #t "~a# of unexpected failures  ~a~a\n" red (+ failures unexpected-failures) reset)
-    (format #t "~a# of total tests          ~a~a\n" yellow (- total todo-count) reset)) ;; remove "TODO" tests them from the count as they are part of the "passes" count
+    (newline)
+    (display "Summary:")
+    (format #t "\n  ~aTests run:               ~a~a\n" yellow (- total todo-count) reset) ;; remove "TODO" tests them from the count as they are part of the "passes" count
+    (format #t "  ~aTODO tests:              ~a~a\n" yellow todo-count reset)
+    (format #t "  ~aSkipped tests:           ~a~a\n" yellow skips reset)
+    (format #t "  ~aExpected tests passed:   ~a~a\n" green (+ (- passes todo-count)) reset) ;; currently "TODO" tests count as "PASS"
+    (format #t "  ~aExpected tests failed:   ~a~a\n" green expected-failures reset)
+    (format #t "  ~aUnexpected tests failed: ~a~a\n" red (+ failures unexpected-failures) reset))
     (set! todo-count 0)
   )
 
@@ -335,7 +337,7 @@
 (set! test-log-to-file #f)
 
 ;;TODO: the test runner factory should be focused on test running, not timing, find a more idiomatic solution
-(test-runner-factory 
+(test-runner-factory
  (lambda ()
    (let ((runner (test-runner-simple))
          (start-time (current-time time-monotonic)))
@@ -354,5 +356,5 @@
                  (seconds (+ (time-second duration)
                              (/ (time-nanosecond duration) 1e9))))
             (tests-summary runner)
-            (format #t "Total time: ~,6f seconds\n~%" seconds))))
+            (format #t "  Total time: ~,6f seconds\n~%" seconds))))
       runner)))
