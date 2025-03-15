@@ -8,9 +8,11 @@
   #:export (describe
             tests
             test
-            test-todo
+            test-fail
             test-skip
+            test-todo
             it
+            it-fail
             it-skip
             it-todo
             expect
@@ -72,6 +74,20 @@
 ;; alternative syntax
 (define-syntax test
   (identifier-syntax it))
+
+(define-syntax it-fail
+  (syntax-rules ()
+    ((_ description body ...)
+     (begin
+      (let ((old-test-name current-test-name))
+        (set! current-test-name description)
+        (test-expect-fail 1)
+        body ...
+        (set! current-test-name old-test-name))
+       ))))
+
+(define-syntax test-fail
+  (identifier-syntax it-fail))
 
 ;;TODO skip tests are still evaluated? check the actual and expected value
 (define-syntax it-skip
@@ -229,6 +245,7 @@
   (lambda (expression test-name)
     (test-error test-name #t expression)))
 
+
 (define todo-count 0)
 (define (test-result runner)
   (let* ((test-name (test-runner-test-name runner))
@@ -236,6 +253,8 @@
          (result-kind (test-result-kind runner))
          (pass? (eq? result-kind 'pass))
          (skip? (eq? result-kind 'skip))
+         (xpass? (eq? result-kind 'xpass))
+         (xfail? (eq? result-kind 'xfail))
          (expected (or (assq-ref (test-result-alist runner) 'expected-value) #t))
          (actual (or (assq-ref (test-result-alist runner) 'actual-value) #f))
          (todo? (and (string? actual) (string=? actual "&&TODO&&"))) ;; I know..
@@ -243,11 +262,15 @@
           (todo? yellow)
           (skip? yellow)
           (pass? green)
+          (xpass? red)
+          (xfail? green)
           (else red)))
          (status (cond
           (todo? "TODO")
           (skip? "SKIP")
           (pass? "PASS")
+          (xfail? "PASS")
+          (xpass? "FAIL")
           (else "FAIL"))))
 
     (when todo? (set! todo-count (+ todo-count 1))) ;; TODO there should be a better way to do that in the tests-summary
@@ -260,11 +283,14 @@
   (let* ((passes (test-runner-pass-count runner))
          (failures (test-runner-fail-count runner))
          (skips (test-runner-skip-count runner))
-         (total (+ passes failures todo-count skips)))
+         (expected-failures (test-runner-xfail-count runner))
+         (unexpected-failures (test-runner-xpass-count runner))
+         (total (+ passes failures todo-count skips expected-failures unexpected-failures)))
     (format #t "\n~a# of TODO tests           ~a~a\n" yellow todo-count reset)
     (format #t "~a# of skipped tests        ~a~a\n" yellow skips reset)
-    (format #t "~a# of expected passes      ~a~a\n" green (- passes todo-count) reset) ;; currently "TODO" tests count as "PASS"
-    (format #t "~a# of unexpected failures  ~a~a\n" red failures reset)
+    (format #t "~a# of expected passes      ~a~a\n" green (+ (- passes todo-count)) reset) ;; currently "TODO" tests count as "PASS"
+    (format #t "~a# of expected failures    ~a~a\n" green expected-failures reset)
+    (format #t "~a# of unexpected failures  ~a~a\n" red (+ failures unexpected-failures) reset)
     (format #t "~a# of total tests          ~a~a\n" yellow (- total todo-count) reset)) ;; remove "TODO" tests them from the count as they are part of the "passes" count
     (set! todo-count 0)
   )

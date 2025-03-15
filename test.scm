@@ -119,8 +119,12 @@
   (it "should fail when the list is shorter or longer than expected (fail)"
       (expect '(1 2) (toHaveLength 4)))
 
-  (it "should fail when the string length doesn't match the expected (fail)" 
+  (it-fail "should fail when the string length doesn't match the expected (fail)"
       (expect "hello" (toHaveLength 1))))
+
+(describe "should expect for the test to fail"
+  (it-fail "should fail using the it-fail syntax (this test will pass)" (expect #f (toBeTruthy)))
+  (test-fail "should fail using the test-fail syntax (this test will fail)" (expect #t (toBeTruthy))))
 
 (describe "toThrow (currently buggy)"
   (it "should test a throwing error (pass)"
