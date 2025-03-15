@@ -34,8 +34,11 @@
 
 ;; ANSI color codes
 (define green "\x1b[32m")
+(define green-bg "\x1b[48;5;28m")
 (define red "\x1b[31m")
+(define red-bg "\x1b[48;5;88m")
 (define yellow "\x1b[33m")
+(define yellow-bg "\x1b[48;5;100m")
 (define reset "\x1b[0m")
 
 (define before-all-hook #f)
@@ -265,6 +268,13 @@
           (xpass? red)
           (xfail? green)
           (else red)))
+         (color-bg (cond
+          (todo? yellow-bg)
+          (skip? yellow-bg)
+          (pass? green-bg)
+          (xpass? red-bg)
+          (xfail? green-bg)
+          (else red-bg)))
          (status (cond
           (todo? "TODO")
           (skip? "SKIP")
@@ -274,7 +284,8 @@
           (else "FAIL"))))
 
     (when todo? (set! todo-count (+ todo-count 1))) ;; TODO there should be a better way to do that in the tests-summary
-    (format #t "~a~a: ~a~a\n" color status test-name reset)
+
+    (format #t "~a ~a ~a~a\n" color-bg status reset (string-append " " test-name) reset)
     (when (equal? status "FAIL")
       (format #t "  ~aExpected: ~s~a\n" green expected reset)
       (format #t "  ~aReceived: ~s~a\n" red actual reset))))
