@@ -307,10 +307,10 @@
 
     (when todo? (set! todo-count (+ todo-count 1))) ;; TODO there should be a better way to do that in the tests-summary
 
-    (format #t "~a ~a ~a~a\n" color-bg status reset (string-append " " test-name) reset)
+    (format #t "  ~a ~a ~a~a\n" color-bg status reset (string-append " " test-name) reset)
     (when (equal? status "FAIL")
-      (format #t "  ~aExpected: ~s~a\n" green expected reset)
-      (format #t "  ~aReceived: ~s~a\n" red actual reset))))
+      (format #t "    ~aExpected: ~s~a\n" green expected reset)
+      (format #t "    ~aReceived: ~s~a\n" red actual reset))))
 
 ;;; Test summary
 (define (tests-summary runner)
@@ -339,6 +339,10 @@
  (lambda ()
    (let ((runner (test-runner-simple))
          (start-time (current-time time-monotonic)))
+     (test-runner-on-group-begin! runner
+       (lambda (runner name count)
+         (display name)
+         (newline)))
      (test-runner-on-test-end! runner
        (lambda (runner)
          (when (test-runner-test-name runner)

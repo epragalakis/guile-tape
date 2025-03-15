@@ -1,6 +1,12 @@
 (add-to-load-path (getcwd))
 (use-modules (tape))
 
+(describe "Outer describe block"
+  (it "should pass" (expect #t (toBeTruthy)))
+  (describe "Inner describe block"
+   (it "should pass" (expect #t (toBeTruthy)))
+   (it "should pass" (expect #t (toBeTruthy)))))
+
 (describe "calls a test in an 'it' or a 'test' block"
   (it "should call a test in an 'it' block"
       (expect #t (toBeTruthy)))
@@ -149,7 +155,7 @@
 (define expectedValue 0)
 (describe "only beforeAll"
           (beforeAll (lambda ()
-                       (display "--Before all tests\n")
+                       (display "  --Before all tests\n")
                        (set! expectedValue "only beforeAll")))
 
           (it "should match expected value" (expect expectedValue (toBe "only beforeAll")))
@@ -157,11 +163,11 @@
 
 (describe "beforeAll and afterAll"
   (beforeAll (lambda ()
-              (display "--Before all tests\n")
+              (display "  --Before all tests\n")
               (set! expectedValue "beforeAll and afterAll")))
 
   (afterAll (lambda ()
-              (display "--After all tests\n")
+              (display "  --After all tests\n")
               (set! expectedValue 0)))
 
   (it "should match expected value" (expect expectedValue (toBe "beforeAll and afterAll")))
@@ -169,17 +175,17 @@
 
 (set! expectedValue "only afterAll")
 (describe "only afterAll"
-  (afterAll (lambda () (display "--After all tests\n")))
+  (afterAll (lambda () (display "  --After all tests\n")))
 
   (it "should match expected value" (expect expectedValue (toBe "only afterAll")))
   (it "should match boolean values" (expect #t (toBe #t))))
 
 (describe "beforeEach and afterEach hooks"
   (beforeEach (lambda ()
-    (display "--Before each test\n")
+    (display "  --Before each test\n")
     (set! expectedValue "beforeEach and afterEach hooks")))
   (afterEach (lambda ()
-    (display "--After each test\n")
+    (display "  --After each test\n")
     (set! expectedValue 0)))
 
   (it "should match expected value (1)"
@@ -189,7 +195,7 @@
 
 (describe "only beforeEach"
   (beforeEach (lambda ()
-    (display "--Before each test\n")
+    (display "  --Before each test\n")
     (set! expectedValue "only beforeEach")))
 
   (it "should match expected value (1)"
@@ -199,7 +205,7 @@
 
 (describe "only afterEach"
   (beforeEach (lambda ()
-    (display "--After each test\n")
+    (display "  --After each test\n")
     (set! expectedValue "only afterEach")))
 
   (it "should match expected value (1)"
