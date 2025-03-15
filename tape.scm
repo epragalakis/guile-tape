@@ -117,7 +117,7 @@
   (syntax-rules ()
     ((_ description )
      (begin
-        (test-eqv description "&&TODO&&" "&&TODO&&"))))) ;; I know..
+        (test-eqv (string-append "it " description) "&&TODO&&" "&&TODO&&"))))) ;; I know..
 
 ;;; Alias of "it-todo"
 (define-syntax test-todo
