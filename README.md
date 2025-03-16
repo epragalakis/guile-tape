@@ -28,7 +28,7 @@ Curently, Tape is not following the [TAP](https://testanything.org/) specificati
       (expect "hello" (toBe "world"))))
 ```
 
-_the following output is actually coloured_
+_the following output is coloured_
 
 ```bash
 toBe
@@ -103,7 +103,7 @@ _due to pattern matching I decided not to implement all the 64 possible combinat
 
 Matchers are used to compare actual values against expected values in tests.
 
-_ check the `./test.scm` file, to see examples on how to use them_
+_check the `./test.scm` file, to see examples on how to use them_
 
 Here is all the supported matchers:
 
