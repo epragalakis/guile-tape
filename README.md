@@ -101,14 +101,6 @@ _due to pattern matching I decided not to implement all the 64 possible combinat
 
 ### Matchers
 
-# Matchers Documentation
-
-This document outlines the matchers available in the testing suite, their functionality, and usage.
-
----
-
-## Matchers Overview
-
 Matchers are used to compare actual values against expected values in tests.
 
 _ check the `./test.scm` file, to see examples on how to use them_
