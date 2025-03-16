@@ -265,10 +265,10 @@
       (test-eqv test-name actual actual-length))))
 
 ;;; Check if EXPRESSION throws an error during evaluation, using "test-error"
-;;; TODO completely broken
+;;; TODO: currently it accepts a lambda that returns a throwing error (need to change it so it is more flexible)
 (define-syntax-rule (toThrow)
   (lambda (expression test-name)
-    (test-error test-name #t expression)))
+    (test-error test-name #t ((expression)))))
 
 ;;; Test result
 (define todo-count 0)

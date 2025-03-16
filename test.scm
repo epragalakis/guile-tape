@@ -132,13 +132,16 @@
   (it-fail "should fail using the it-fail syntax (this test will pass)" (expect #f (toBeTruthy)))
   (test-fail "should fail using the test-fail syntax (this test will fail)" (expect #t (toBeTruthy))))
 
-(describe "toThrow (currently buggy)"
-  (it-fail "should test a throwing error" (expect #f (toThrow))))
-           ;(expect (lambda () (car '())))
+(describe "toThrow"
+  (it "should test throwing error (1)"
+    (expect (lambda ()
+      (/ 1 0))
+    (toThrow)))
 
-  ;(it-fail "should fail when there isnt a throwing error"
-      ;(expect (lambda () (+ 1 2)))
-        ;(toThrow)))
+  (it "should test a throwing error (2)"
+    (expect (lambda ()
+      (error "some error"))
+    (toThrow))))
 
 (describe "skips tests that are marked as 'skip'"
   (it-skip "should skip this test (it-skip syntax)" (expect #f (toBeTruthy)))
