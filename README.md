@@ -12,9 +12,7 @@ This was written as a practice of learning Guile.
 
 The code is messy and there are bugs.
 
-Also, the module's name is **Tape** it is not following the [TAP](https://testanything.org/) spec.
-
-In the future it might evolve further, to better serve my TDD needs.
+Curently, Tape is not following the [TAP](https://testanything.org/) specification (but it probably will in the future).
 
 ## Example
 
@@ -33,29 +31,49 @@ In the future it might evolve further, to better serve my TDD needs.
 _the following output is actually coloured_
 
 ```bash
-%%%% Starting test toBe
-PASS: tests that a number is equal to four
-FAIL: tests that a string is equal to 'world'
-  Expected: "world"
-  Received: "hello"
+toBe
+  PASS: tests that a number is equal to four
+  FAIL: tests that a string is equal to 'world'
+    Expected: "world"
+    Received: "hello"
 
-# of expected passes      1
-# of unexpected failures  1
-# of total tests          2
-Total time: 0.000080 seconds
+Summary:
+  Tests run:               2
+  TODO tests:              0
+  Skipped tests:           0
+  Expected tests passed:   1
+  Expected tests failed:   1
+  Unexpected tests failed: 0
+  Total time: 0.000071 seconds
 ```
 
 ## Install
 
-TODO as its not yet published anywhere
+It is not yet published anywhere.
 
 ## Usage
 
 - Import tape in your test file: `use-modules ('tape')`
 - Run the test: `$ guile tests/my-test.scm`
 
-- For all supported matchers check: `./tape.scm` TODO have a section for that
-- For more use cases check: `./test.scm` TODO have a section for that
+### Test wrappers
+
+All tests need to be wrapped in a `describe` block (or in a `tests` block as an alias of `describe`).
+
+You can also nest multiple `describe` blocks.
+
+### Test callers
+
+You can use:
+
+- `it` to define an individual test case
+- `it-fail` to define an individual test case that is expected to fail
+- `it-todo` to define a todo test case
+- `it-skip` to define a test case that you want to be skipped
+- `test` as an alias to `it`
+- `test-fail` as an alias to `test-fail`
+- `test-skip` as an alias to `test-skip`
+- `test-todo` as an alias to `test-todo`
 
 ### Hooks
 
@@ -80,6 +98,68 @@ Example:
 ```
 
 _due to pattern matching I decided not to implement all the 64 possible combinations (64 because all the possible combinations + the differences in the call order) with the hope that there is an easier solution to be found_
+
+### Matchers
+
+# Matchers Documentation
+
+This document outlines the matchers available in the testing suite, their functionality, and usage.
+
+---
+
+## Matchers Overview
+
+Matchers are used to compare actual values against expected values in tests.
+
+_ check the `./test.scm` file, to see examples on how to use them_
+
+Here is all the supported matchers:
+
+#### toBe
+
+Checks if `actual` is equivalent to an `expected` value using `test-eqv`.
+
+#### toEqual
+
+Checks if `actual` is equal to an `expected` value using `test-equal`.
+
+#### toBeTruthy
+
+Checks if a value is truthy using `test-assert`.
+
+#### toBeFalsy
+
+Checks if a value is falsy using `test-assert`.
+
+#### toBeGreaterThan
+
+Checks if `actual` is greater than an `expected` value using `test-assert`.
+
+#### toBeLessThan
+
+Checks if `actual` is less than an `expected` value using `test-assert`.
+
+#### toBeCloseTo
+
+Checks if `actual` is approximately equal to an `expected` value within a given delta using `test-approximate`.
+
+#### stringToMatch
+
+Checks if the `actual` string contains an expected substring using `test-assert`.
+
+#### listToContain
+
+Checks if the `actual` list contains an expected element using `test-assert`.
+
+#### toHaveLength
+
+Checks if the length of the `actual` (string or list) equals the expected length using `test-eqv`.
+
+#### toThrow
+
+Checks if an expression throws an error during evaluation using `test-error`.
+
+> **Note:** Currently accepts a lambda that returns a throwing error.
 
 ## License
 
