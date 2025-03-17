@@ -1,6 +1,7 @@
 (add-to-load-path (getcwd))
 (use-modules (tape))
 
+(describe "Tests start.."
 (describe "Outer describe block"
   (it "should pass" (expect #t (toBeTruthy)))
   (describe "Inner describe block"
@@ -220,3 +221,4 @@
   ;; This test is needed to ensure that the state from the previous hooks is not persisted
   (it "should match expected value"
     (expect expectedValue (toBe "only afterEach"))))
+)
